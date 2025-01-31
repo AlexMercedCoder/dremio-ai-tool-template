@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain.memory import ConversationBufferMemory
 from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, Tool
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
+from langchain.schema import AIMessage, HumanMessage
 import os
 
 # Load environment variables
@@ -32,39 +32,16 @@ def get_customer_list(_input=None):
     query = """SELECT DISTINCT id, customer FROM "@alex.merced@dremio.com"."ai_agent_views"."customer_lookup";"""
     df = dremio.toPandas(query)
     if not df.empty:
-        
-        return f"""CUSTOMER LIST
-    {df.to_string(index=True)}
-    """
+        return f"CUSTOMER LIST:\n{df.to_string(index=False)}"
     return "No customers found."
 
 get_customer_list_tool = Tool(
     name="get_customer_list",
     func=get_customer_list,
-    description="Retrieves a list of all customer names and ids from the database."
+    description="Retrieves a list of all customer names and IDs from the database."
 )
 
-# # Tool 2: Get Customer ID
-# def get_customer_id(customer_name: str):
-#     print(f"Fetching customer ID for {customer_name}")
-#     query = f"""
-#     SELECT id FROM "@alex.merced@dremio.com"."ai_agent_views"."customer_lookup" 
-#     WHERE LOWER(customer) LIKE '{customer_name.lower()}%';
-#     """
-#     df = dremio.toPandas(query)
-#     if not df.empty:
-#         customer_id = df.iloc[0]['id']
-#         print(f"Customer ID found: {customer_id}")
-#         return str(customer_id)
-#     return "Customer not found."
-
-# get_customer_id_tool = Tool(
-#     name="get_customer_id",
-#     func=get_customer_id,
-#     description="Retrieves a customer ID from the database given a customer name."
-# )
-
-# Tool 3: Get Customer Data
+# Tool 2: Get Customer Data
 def get_customer_data(customer_id: str):
     print(f"Fetching data for customer ID {customer_id}")
     query = f"""
@@ -97,40 +74,45 @@ agent = initialize_agent(
 def index():
     response = None
 
-    # Clear session on refresh
+    # Reset chat history on refresh (GET request)
     if request.method == "GET":
         session.clear()
 
+    # Initialize chat history if not set
+    if "chat_history" not in session:
+        session["chat_history"] = []
+
     if request.method == "POST":
-        user_prompt = f"""
-        You are a cheerful assistant for a sales agent looking to help understand existing deals. In the agents question they may mispell the customers name, so to make sure to pull the right data:
-        
-        1. Get the customer list and look for a customers name that approximately matches the customers name from the question.
-        2. Get the customer id
-        3. Get the customer data using the customer id
-        
-        4. Then answer the customers question cheerfully, the question is below:
-        
-        {request.form["question"]}
+        user_question = request.form["question"]
+
+        # Build contextual prompt considering past conversations
+        past_chat = "\n".join([f"You: {msg['question']}\nAI: {msg['answer']}" for msg in session["chat_history"]])
+        full_prompt = f"""
+        You are a cheerful assistant for a sales agent looking to understand existing deals. 
+        - If a customer name is provided, ensure correct spelling by checking the customer list.
+        - Then retrieve their ID and fetch relevant customer data.
+        - Finally, answer the user's question in a helpful and engaging way.
+
+        Here is the conversation so far:
+        {past_chat}
+
+        User's New Question: {user_question}
         """
 
-        # Ensure chat history is passed to the agent
-        agent_inputs = {
-            "chat_history": memory.load_memory_variables({})["chat_history"],  # Load past messages
-            "input": user_prompt
-        }
-
-        # Let the AI agent decide if it needs to call a tool
+        # Let the AI agent decide how to handle the request
+        agent_inputs = {"input": full_prompt}
         response = agent.run(agent_inputs)
 
-        # Store chat history
-        if "chat_history" not in session:
-            session["chat_history"] = []
-        session["chat_history"].append({"question": user_prompt, "answer": response})
+        # Store chat history for continuity (APPEND new messages)
+        session["chat_history"].append({"question": user_question, "answer": response})
+        session.modified = True  # Ensure session updates persist
 
-    return render_template("index3.html", chat_history=session.get("chat_history", []), response=response)
+    return render_template("index3.html", chat_history=session["chat_history"], response=response)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
 
 
