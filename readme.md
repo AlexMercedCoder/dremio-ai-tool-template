@@ -1,4 +1,18 @@
-# **Dremio AI Chat - Comparison of `app.py/index.html`, `app2.py/index2.html`, and `app3.py/index3.html`**
+# **Dremio AI Chat**
+
+## Getting Started
+
+- fork/clone the repo
+- cd into the repo
+- create a virtual environment `python -m venv venv`
+- activate the virtual environment `source venv/bin/activate`
+- install the requirements `pip install -r requirements.txt`
+- run the app `python app3.py`
+- open your browser and go to `http://localhost:5000`
+
+---
+
+Comparison of `app.py/index.html`, `app2.py/index2.html`, and `app3.py/index3.html`
 
 ## **Overview**
 The **Dremio AI Chat** is a Flask-based web application that integrates OpenAI's GPT-4 with real-time data retrieval from **Dremio**. It allows users to query sales opportunities dynamically. The three versions of the application—`app.py/index.html`, `app2.py/index2.html`, and `app3.py/index3.html`—differ in how they handle data retrieval, user interaction, and session management.
