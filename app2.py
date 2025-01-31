@@ -27,17 +27,20 @@ memory = ConversationBufferMemory(return_messages=True)
 
 # Function 1: Get customer ID based on the entered name
 def get_customer_id(customer_name):
+    print("getting customer id")
     query = f"""
     SELECT * FROM "@alex.merced@dremio.com"."ai_agent_views"."customer_lookup" WHERE LOWER(customer) LIKE '{customer_name.lower()}%';
     """
     df = dremio.toPandas(query)
-
+    
     if not df.empty:
+        print("got customer id")
         return df.iloc[0]['id']
     return None
 
 # Function 2: Get customer-specific data using the customer ID
 def get_customer_data(customer_id):
+    print("getting customer data")
     query = f"""
     SELECT * FROM "@alex.merced@dremio.com"."ai_agent_views"."refined_opps" where company_id = '{customer_id}';
     """
@@ -45,6 +48,7 @@ def get_customer_data(customer_id):
     df = dremio.toPandas(query)
 
     if not df.empty:
+        print("got customer data")
         return df.to_string(index=False)  # Convert DataFrame to readable text
     return "No data found for this customer."
 
@@ -81,6 +85,7 @@ def index():
             # Generate AI response
             messages = [SystemMessage(content="You are an AI assistant answering customer inquiries."), HumanMessage(content=prompt)]
             response = chat_model.invoke(messages).content
+            print(response)
 
             # Store chat history
             if "chat_history" not in session:

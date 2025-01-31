@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Support AI Chat</title>
+    <title>Sales Opportunity Chat</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -87,30 +87,45 @@
             background: #0088cc;
         }
 
-        .chat-box::-webkit-scrollbar {
-            width: 8px;
+        /* Typing Loader */
+        .loading {
+            display: none;
+            text-align: center;
+            font-style: italic;
+            color: #ffffff;
         }
 
-        .chat-box::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
+        /* Preserving Formatting */
+        pre {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
-        .chat-box::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-        }
     </style>
+
+    <script>
+        function showLoader() {
+            document.getElementById("loading").style.display = "block";
+        }
+    </script>
 </head>
 <body>
 
-    <h2>Customer Support AI Chat</h2>
+    <h2>Sales Opportunity Chat</h2>
 
     <div class="chat-container">
-        <form method="POST" class="chat-form">
+        <form method="POST" class="chat-form" onsubmit="showLoader()">
             <input type="text" name="customer" placeholder="Enter customer name..." required>
             <input type="text" name="question" placeholder="Ask a question..." required>
             <button type="submit">Send</button>
         </form>
+
+        <div id="loading" class="loading">AI is typing...</div>
 
         <div class="chat-box">
             {% for chat in chat_history %}
@@ -118,7 +133,7 @@
                     <strong>Customer ({{ chat.customer }}):</strong> {{ chat.question }}
                 </div>
                 <div class="chat-message ai-message">
-                    <strong>AI:</strong> {{ chat.answer }}
+                    <strong>AI:</strong> <pre>{{ chat.answer }}</pre>
                 </div>
             {% endfor %}
         </div>
