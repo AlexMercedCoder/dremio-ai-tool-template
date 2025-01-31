@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Sales Chat</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 28px;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            text-align: left;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .chat-message {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            background: rgba(173, 216, 230, 0.8);
+            color: #004466;
+            text-align: right;
+        }
+
+        .ai-message {
+            background: rgba(255, 255, 255, 0.8);
+            color: #003366;
+            text-align: left;
+        }
+
+        .chat-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        button {
+            background: #00aaff;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #0088cc;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            font-style: italic;
+            color: #ffffff;
+        }
+
+        pre {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+    </style>
+
+    <script>
+        function showLoader() {
+            document.getElementById("loading").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+
+    <h2>AI-Powered Sales Chat</h2>
+
+    <div class="chat-container">
+        <form method="POST" class="chat-form" onsubmit="showLoader()">
+            <input type="text" name="question" placeholder="Ask a question..." required>
+            <button type="submit">Send</button>
+        </form>
+
+        <div id="loading" class="loading">AI is thinking...</div>
+
+        <div class="chat-box">
+            {% for chat in chat_history %}
+                <div class="chat-message user-message">
+                    <strong>You:</strong> {{ chat.question }}
+                </div>
+                <div class="chat-message ai-message">
+                    <strong>AI:</strong> <pre>{{ chat.answer }}</pre>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
